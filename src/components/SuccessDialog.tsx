@@ -12,7 +12,7 @@ export default function SuccessDialog({ open, onOpenChange }: SuccessDialogProps
       <DialogContent className="bg-slate-800/90 border-slate-700 max-w-md p-6 rounded-xl flex flex-col items-center text-center">
         <img
           src="https://edhec.com.br/wp-content/webp-express/webp-images/uploads/2023/05/capa-PR.png.webp"
-          alt="Pré Teste Logo"
+          alt="Pós Teste Logo"
           className="logo-highlight mx-auto h-20 md:h-24 mb-2"
         />
         <div className="flex items-center justify-center gap-2">
@@ -22,7 +22,7 @@ export default function SuccessDialog({ open, onOpenChange }: SuccessDialogProps
           </h2>
         </div>
         <p className="text-white text-xl font-bold mb-2">
-          Pré Teste
+          Pós Teste
         </p>
         <p className="text-gray-300 mb-4">
           Seus dados foram salvos com sucesso.<br />

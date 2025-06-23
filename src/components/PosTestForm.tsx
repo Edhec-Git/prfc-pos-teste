@@ -121,10 +121,10 @@ function cpfMask(value: string) {
 const initialFormData = {
   nomeCompleto: "",
   cpf: "",
+
   ...Object.fromEntries(
     questionList.map((_, i) => [
       [`resposta_${i}`, ""],
-      [`conviccao_${i}`, [50]],
     ]).flat()
   ),
 };
@@ -192,11 +192,10 @@ const PreTestForm = () => {
         resposta = cleanOptionPrefix(resposta);
 
         payload[`pergunta_${String(i + 1).padStart(2, "0")}`] = resposta;
-        payload[`conviccao_${String(i + 1).padStart(2, "0")}`] = formData[`conviccao_${i}`][0];
       }
 
       const { error } = await (supabase as any)
-        .from("pre_teste_prfc")
+        .from("pos_teste_prfc")
         .insert([payload]);
 
       if (error) {
@@ -215,95 +214,54 @@ const PreTestForm = () => {
     }
   };
 
-  // Imagens e textos para convicção
-  const getConvictionImage = (value: number) =>
-    value <= 30
-      ? "https://w1.pngwing.com/pngs/241/505/png-transparent-boy-football-soccer-soccer-ball-cartoon-soccer-kick-player-throwing-a-ball-playing-sports-football-player-thumbnail.png"
-      : value >= 70
-      ? "https://i.pinimg.com/474x/86/50/6a/86506a9a77cc49da93bfc2584edce5c7.jpg"
-      : "https://e7.pngegg.com/pngimages/48/293/png-clipart-painted-3d-3d-3d-villain-doubt-cartoon-creative-3d-thumbnail.png";
-  const getConvictionText = (value: number) =>
-    value <= 30
-      ? "Baixa convicção"
-      : value >= 70
-      ? "Estou convicto da resposta"
-      : "Estou em dúvida";
+ 
 
   // Navegação
   const handleNext = () => setCurrentQuestion((prev) => prev + 1);
   const handlePrev = () => setCurrentQuestion((prev) => prev - 1);
 
-  // Checa se resposta + convicção estão preenchidas
+  // Checa se resposta 
   const isQuestionAnswered = () => {
     const ans = formData[`resposta_${currentQuestion}`];
-    const convArr = formData[`conviccao_${currentQuestion}`];
-    return typeof ans === "string" && ans.length > 0 && typeof convArr?.[0] === "number";
+    return typeof ans === "string" && ans.length > 0;
   };
 
-  // Renderiza Pergunta + Convicção
-  const renderSingleQuestion = (question: typeof questionList[number], index: number) => {
-    const convKey = `conviccao_${index}`;
-    const convValue: number = formData[convKey]?.[0] ?? 50;
-    return (
-      <div className="space-y-4 p-4 bg-slate-700/30 rounded-lg">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-400">
-            Pergunta {index + 1} de {questionList.length}
-          </span>
-        </div>
-        <h3 className="text-white font-medium text-base leading-relaxed">{question.text} *</h3>
-        <RadioGroup
-          value={formData[`resposta_${index}`]}
-          onValueChange={(value) =>
-            setFormData((prev) => ({ ...prev, [`resposta_${index}`]: value }))
-          }
-          className="space-y-3"
-        >
-          {question.options.map((option, optionIndex) => (
-            <div key={optionIndex} className="flex items-start space-x-3">
-              <RadioGroupItem
-                value={option}
-                id={`${index}-option-${optionIndex}`}
-                className="border-white text-white mt-1 flex-shrink-0"
-              />
-              <Label
-                htmlFor={`${index}-option-${optionIndex}`}
-                className="text-gray-300 text-sm leading-relaxed cursor-pointer flex-1"
-              >
-                {option}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
-        {/* Convicção */}
-        <div className="mt-6 p-4 bg-slate-600/30 rounded-lg">
-          <Label className="text-gray-300 font-medium mb-3 block">Nível de Convicção *</Label>
-          <div className="space-y-4">
-            <Slider
-              value={formData[convKey]}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, [convKey]: value }))
-              }
-              max={100}
-              step={1}
-              className="w-full"
-            />
-            <div className="flex items-center justify-center space-x-4">
-              <img
-                src={getConvictionImage(convValue)}
-                alt="Conviction level"
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <div className="text-center">
-                <div className="text-white font-bold text-lg">{convValue}%</div>
-                <div className="text-gray-300 text-sm">{getConvictionText(convValue)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
+// Renderiza Pergunta 
+const renderSingleQuestion = (question: typeof questionList[number], index: number) => {
+  return (
+    <div className="space-y-4 p-4 bg-slate-700/30 rounded-lg">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-gray-400">
+          Pergunta {index + 1} de {questionList.length}
+        </span>
       </div>
-    );
-  };
+      <h3 className="text-white font-medium text-base leading-relaxed">{question.text} *</h3>
+      <RadioGroup
+        value={formData[`resposta_${index}`]}
+        onValueChange={(value) =>
+          setFormData((prev) => ({ ...prev, [`resposta_${index}`]: value }))
+        }
+        className="space-y-3"
+      >
+        {question.options.map((option, optionIndex) => (
+          <div key={optionIndex} className="flex items-start space-x-3">
+            <RadioGroupItem
+              value={option}
+              id={`${index}-option-${optionIndex}`}
+              className="border-white text-white mt-1 flex-shrink-0"
+            />
+            <Label
+              htmlFor={`${index}-option-${optionIndex}`}
+              className="text-gray-300 text-sm leading-relaxed cursor-pointer flex-1"
+            >
+              {option}
+            </Label>
+          </div>
+        ))}
+      </RadioGroup>
+    </div>
+  );
+};
 
   // Antes de salvar no Supabase, filtra as opções para retirar o prefixo "A)", "B)", etc:
   const cleanOptionPrefix = (value: string) => {
@@ -330,7 +288,7 @@ const PreTestForm = () => {
             Percepção de Risco Foco Comportamental
           </span>
           <span className="block text-lg md:text-2xl font-semibold text-yellow-400 mt-2">
-            Pré-Teste
+            Pós-Teste
           </span>
 
         </h1>
@@ -396,7 +354,7 @@ const PreTestForm = () => {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardHeader>
             <CardTitle className="text-white text-xl">
-              Seção de Avaliação - Pré Teste
+              Seção de Avaliação - Pós Teste
             </CardTitle>
             <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 mt-4">
               <p className="text-yellow-400 font-medium">

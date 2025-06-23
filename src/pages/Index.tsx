@@ -1,5 +1,5 @@
 
-import PreTestForm from "@/components/PreTestForm";
+import PreTestForm from "@/components/PosTestForm";
 
 const Index = () => {
   return (
